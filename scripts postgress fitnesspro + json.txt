@@ -1,0 +1,189 @@
+
+DROP TABLE IF EXISTS USUARIO;
+DROP TABLE IF EXISTS SUSCRIPCION;
+DROP TABLE IF EXISTS SUSCRIPCION_USUARIO;
+DROP TABLE IF EXISTS PERMISO;
+DROP TABLE IF EXISTS TIPO_PERMISO;
+
+DROP SEQUENCE IF EXISTS usuario_seq; 
+DROP SEQUENCE IF EXISTS suscripcion_seq;
+DROP SEQUENCE IF EXISTS permiso_seq;
+DROP SEQUENCE IF EXISTS suscripcion_usuario_seq;
+DROP SEQUENCE IF EXISTS tipo_permiso_seq;
+
+DROP SEQUENCE IF EXISTS confirmacion_seq;
+DROP SEQUENCE IF EXISTS pedido_seq;
+DROP SEQUENCE IF EXISTS despacho_seq;
+
+DROP SEQUENCE IF EXISTS plan_seq;
+DROP SEQUENCE IF EXISTS sumplemento_seq;
+DROP SEQUENCE IF EXISTS productos_seq;
+
+
+
+DROP TYPE IF EXISTS estado;
+
+CREATE SEQUENCE usuario_seq;
+CREATE SEQUENCE suscripcion_seq;
+CREATE SEQUENCE suscripcion_usuario_seq;
+CREATE SEQUENCE permiso_seq;
+CREATE SEQUENCE tipo_permiso_seq;
+
+CREATE SEQUENCE confirmacion_seq;
+CREATE SEQUENCE pedido_seq;
+CREATE SEQUENCE despacho_seq;
+
+CREATE SEQUENCE plan_seq;
+CREATE SEQUENCE suplemento_seq;
+CREATE SEQUENCE productos_seq;
+
+CREATE TYPE estado AS ENUM ('S', 'N');
+
+
+CREATE TABLE IF NOT EXISTS usuario(
+    id_usuario int not null default NEXTVAL('usuario_seq'),
+    correo varchar(50)  not null,
+    tipo_usuario varchar(50)  not null,
+    cedula int not null,
+    primer_nombre varchar(50)  not null,
+    segundo_nombre varchar(50)  not null,
+    primer_apellido varchar(50)  not null,
+    segundo_apellido varchar(50)  not null,
+    registrado estado not null,
+    clave varchar(50)  not null,
+    primary key(id_usuario)
+
+);
+CREATE TABLE IF NOT EXISTS suscripcion(
+    id_suscripcion int not null default NEXTVAL('suscripcion_seq'),
+    valor int  not null,
+    tarjeta_credito varchar(100)  not null,
+    numero_tarjeta int not null,
+    fecha_vencimiento_sus date not null,
+    primary key(id_suscripcion)
+);
+
+CREATE TABLE IF NOT EXISTS suscripcion_usuario(
+    id_suscripcion_usuario int not null default NEXTVAL('suscripcion_usuario_seq'),
+    fk_id_usuario int  not null,
+    fk_id_suscripcion int  not null,
+    direccion varchar(100)  not null,
+    fechasdePago varchar(100)  not null,
+    estado_suscripcion estado not null,
+    primary key(id_suscripcion_usuario),
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario),
+    FOREIGN KEY (fk_id_suscripcion) REFERENCES suscripcion(id_suscripcion)
+);
+CREATE TABLE IF NOT EXISTS tipo_permiso(
+    id_tipo_permiso int not null default NEXTVAL('tipo_permiso_seq'),    
+    nombre varchar(60) not null,
+    primary key(id_tipo_permiso)
+    );
+
+
+CREATE TABLE IF NOT EXISTS permiso(
+    id_permiso int not null default NEXTVAL('permiso_seq'),    
+    pantalla varchar(60) not null,
+    fk_tipo_permiso int not null,
+    fk_id_usuario int not null,
+    primary key(id_permiso),
+    FOREIGN KEY (fk_tipo_permiso) REFERENCES tipo_permiso(id_tipo_permiso),
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+    );
+
+CREATE TABLE IF NOT EXISTS despacho(
+    id_despacho int not null default NEXTVAL('despacho_seq'),    
+    direccion varchar(60) not null,
+    empresa varchar(60) not null,
+    fk_id_usuario int not null,
+    fecha_entrega_estimada timestamp not null,
+    fecha_envio timestamp not null,
+    primary key(id_despacho),
+    FOREIGN KEY (fk_id_usuario) REFERENCES usuario(id_usuario)
+
+    );
+
+CREATE TABLE IF NOT EXISTS confirmacion_del_pedido(
+    id_confirmacion int not null default NEXTVAL('confirmacion_seq'),    
+    nombre varchar(60) not null,
+    cedula int not null,
+    direccion varchar(60) not null,
+    fk_despacho int not null,
+    total_pedido int not null,
+    total_envio int not null,
+    entregado estado not null,
+    primary key(id_confirmacion),
+    FOREIGN KEY (fk_despacho) REFERENCES despacho(id_despacho)
+  
+    );
+
+CREATE TABLE IF NOT EXISTS pedido(
+    id_pedido int not null default NEXTVAL('pedido_seq'),    
+    fk_suscripcion_usuario int not null,
+    fk_confirmacion int not null,
+    estado_pedido estado,
+    metodo_pago varchar(60),
+    fecha_pedido timestamp not null,
+    estado_pago estado not null,
+    primary key(id_pedido),
+    FOREIGN KEY (fk_suscripcion_usuario) REFERENCES suscripcion_usuario(id_suscripcion_usuario),
+    FOREIGN KEY (fk_confirmacion) REFERENCES confirmacion_del_pedido(id_confirmacion)
+    );
+CREATE TABLE IF NOT EXISTS plan_suplemento(
+    id_plan_suplemento int not null default NEXTVAL('plan_seq'),    
+    recomendacion varchar(200),
+    primary key(id_plan_suplemento)
+    );
+CREATE TABLE IF NOT EXISTS suplemento(
+    id_suplemento int not null default NEXTVAL('suplemento_seq'),    
+    nombre varchar(60) not null,
+    costo int not null,
+    estado_suplemento estado not null,
+    fk_id_plan int not null,
+    marca varchar(60) not null,
+    primary key(id_suplemento),
+    FOREIGN KEY (fk_id_plan) REFERENCES plan_suplemento(id_plan_suplemento)
+   
+    );
+CREATE TABLE IF NOT EXISTS productos(
+    id_productos int not null default NEXTVAL('productos_seq'),    
+    fk_id_suplemento int not null,
+    fk_id_pedido int not null,
+    cantidad int not null,
+    total int not null,
+    primary key(id_productos),
+    FOREIGN KEY (fk_id_suplemento) REFERENCES suplemento(id_suplemento),
+    FOREIGN KEY (fk_id_pedido) REFERENCES pedido(id_pedido)
+    );
+
+
+
+
+json USUARIO
+{
+id_usuario:"",
+correo:"",
+contrase�a:"",
+tipo_usuario:"",
+cedula:"",
+primer_nombre:"",
+segundo_nombre:"";
+primer_apellido:"",
+segundo_apellido:"",
+registrado:"S",
+}
+
+json Suscripcion
+
+{
+id_suscripcion:"",
+valor:"",
+tarjeta_credito:"",
+numero_tarjeta:"",
+fecha_vencimiento_sus:""
+}
+
+
+
+
+
